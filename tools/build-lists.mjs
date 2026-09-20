@@ -189,7 +189,20 @@ async function main() {
     if (droppedByAllowlist.length > 20) log(`      ... et ${droppedByAllowlist.length - 20} autres (voir build-report.json)`);
   }
 
-  log('\nArtefacts dans extension/rules/ : hostnames.json, hostnames.js, build-report.json\n');
+  // heuristics.js : reglages de l'heuristique, recompiles en module ES pour que
+  // le service de fond les importe statiquement, comme les listes.
+  const heuristics = JSON.parse(await readLocalList('lists/heuristics.json'));
+  await writeFile(
+    join(OUT_DIR, 'heuristics.js'),
+    [
+      '// Genere par tools/build-lists.mjs depuis lists/heuristics.json.',
+      '// Ne pas editer a la main : regler dans lists/heuristics.json.',
+      `export const heuristics = ${JSON.stringify(heuristics, null, 2)};`,
+      '',
+    ].join('\n'),
+  );
+
+  log('\nArtefacts dans extension/rules/ : hostnames.json, hostnames.js, heuristics.js, build-report.json\n');
 }
 
 main().catch((error) => {

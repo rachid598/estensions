@@ -11,8 +11,22 @@
 
 const api = globalThis.browser ?? globalThis.chrome;
 
-const hostname = new URLSearchParams(window.location.search).get('h') ?? '';
+const parametres = new URLSearchParams(window.location.search);
+const hostname = parametres.get('h') ?? '';
 document.getElementById('domaine').textContent = hostname || 'domaine inconnu';
+
+/** Motifs connus. Toute valeur inattendue retombe sur le texte generique. */
+const MOTIFS = {
+  liste: "Ce site est classé parmi les sites de jeux en ligne. Il n'est pas accessible "
+    + 'depuis les postes des salles informatiques.',
+  proxy: 'Ce site a été identifié comme un service de contournement du filtrage. '
+    + "Il n'est pas accessible depuis les postes des salles informatiques.",
+  heuristique: 'Ce site a été détecté comme proposant des jeux en ligne. '
+    + "Il n'est pas accessible depuis les postes des salles informatiques.",
+};
+
+const motif = MOTIFS[parametres.get('r')];
+if (motif) document.getElementById('motif').textContent = motif;
 
 const dateElement = document.getElementById('maj');
 const contactElement = document.getElementById('contact');

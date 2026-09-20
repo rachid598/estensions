@@ -1,0 +1,56 @@
+{
+  "comment": [
+    "Reglages de l'heuristique de detection de jeux. Modifiables sans toucher au",
+    "code : `npm run build:lists` les recompile dans l'extension.",
+    "",
+    "Regle de conception : le blocage exige TOUJOURS un signal de moteur ET un",
+    "signal lexical. Les moteurs Unity et Godot servent aussi a des simulations",
+    "pedagogiques ; un signal de moteur seul ne doit jamais suffire."
+  ],
+  "threshold": 4,
+  "requireEngineAndLexical": true,
+  "weights": {
+    "lexicalUrl": 2,
+    "lexicalTitle": 2,
+    "engineDom": 3,
+    "engineGlobal": 3,
+    "bigCanvas": 1
+  },
+  "lexical": {
+    "urlKeywords": [
+      "unblocked", "jeu", "jeux", "game", "games", "gaming", "juegos", "spiele",
+      "giochi", "arcade", "friv", "io-games", "playonline", "play-online", "flashgame"
+    ],
+    "titleKeywords": [
+      "unblocked games", "jeux en ligne", "jeux gratuits", "jouer en ligne",
+      "free online games", "play free games", "jeux flash", "arcade games",
+      "juegos gratis", "kostenlose spiele"
+    ]
+  },
+  "engine": {
+    "scriptPatterns": [
+      "ruffle", "unityloader", "unitywebgl", "build/unityloader", "phaser.min.js",
+      "phaser.js", "godot", "c2runtime", "c3runtime", "construct", "createjs",
+      "gamemaker", "html5game", "swfobject"
+    ],
+    "embedExtensions": [".swf", ".unity3d"],
+    "mainWorldGlobals": [
+      "unityInstance", "UnityLoader", "createUnityInstance", "Godot", "Module",
+      "c2runtime", "c3runtime", "Phaser", "RufflePlayer", "GameMaker_Init"
+    ]
+  },
+  "canvas": {
+    "viewportRatio": 0.6
+  },
+  "proxySignatures": {
+    "comment": [
+      "Globales de signature des proxys web. Volontairement restreintes : on ne",
+      "detecte NI sur le nom `sw.js`, NI sur la simple presence d'un service",
+      "worker. Replit, CodeSandbox et JupyterLite en enregistrent legitimement."
+    ],
+    "mainWorldGlobals": ["__uv$config", "__scramjet$config", "__bare$server", "__uv", "__scramjet"]
+  },
+  "journal": {
+    "maxEntries": 200
+  }
+}

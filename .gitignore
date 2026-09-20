@@ -9,6 +9,7 @@ dist/
 # Meme contenu que hostnames.json, mais en module ES pour l'extension.
 # Derivable : regenere par `npm run build:lists`.
 extension/rules/hostnames.js
+extension/rules/heuristics.js
 
 # Dependances de developpement (web-ext pour le lint et la signature AMO).
 package-lock.json
