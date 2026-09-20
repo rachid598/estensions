@@ -1,0 +1,51 @@
+# Allowlist pedagogique : ces hostnames ne doivent JAMAIS etre bloques, ni par
+# la liste noire, ni par l'heuristique, ni par la sonde anti-proxy.
+#
+# L'allowlist est prioritaire en toutes circonstances. Un hostname present ici
+# couvre ses sous-domaines.
+#
+# Pour ajouter un site sans regenerer l'extension, passer plutot par la policy
+# d'etablissement (voir docs/faux-positifs.md) : l'effet est immediat.
+
+# --- Creation et algorithmique (souvent classes en "jeux" en amont) ---
+scratch.mit.edu
+code.org
+geogebra.org
+tinkercad.com
+trinket.io
+micro-bit.org
+vittascience.com
+
+# --- Environnements de code en ligne (enregistrent des service workers) ---
+replit.com
+codesandbox.io
+stackblitz.com
+jupyter.org
+jupyterlite.readthedocs.io
+
+# --- Ressources et institutions ---
+eduscol.education.fr
+education.gouv.fr
+lumni.fr
+france.tv
+cnrs.fr
+ac-paris.fr
+wikipedia.org
+wikimedia.org
+universalis.fr
+larousse.fr
+
+# --- Activites pedagogiques ludifiees ---
+learningapps.org
+wordwall.net
+kahoot.it
+kahoot.com
+quizlet.com
+genially.com
+educandy.com
+la-quizinerie.com
+
+# --- Vie scolaire (a completer avec les domaines de l'etablissement) ---
+index-education.net
+pronote.net
+toutatice.fr

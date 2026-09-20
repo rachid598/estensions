@@ -1,0 +1,37 @@
+{
+  "generatedAt": "2026-09-20T11:42:35.681Z",
+  "digest": "c7fc39594bf2681266088c01a831b913e11af33dc7b1cbf92bddd8d5f5f869c2",
+  "pipeline": {
+    "raw": 33760,
+    "unique": 33719,
+    "afterReduction": 33719,
+    "afterAllowlist": 33717
+  },
+  "dnr": {
+    "total": 33758,
+    "block": 33717,
+    "allow": 41,
+    "budget": 28000
+  },
+  "warnings": {
+    "publicSuffixRefused": [],
+    "publicSuffixAccepted": [
+      "game-host.org",
+      "game-server.cc",
+      "game.tw",
+      "netgamers.jp",
+      "servegame.com",
+      "servegame.org"
+    ],
+    "sharedHostsBlocked": [
+      "itch.io"
+    ],
+    "droppedByAllowlist": [
+      "jeux.larousse.fr",
+      "primarygames.com"
+    ]
+  },
+  "skipped": {
+    "adresse IPv4": 26
+  }
+}

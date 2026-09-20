@@ -1,0 +1,33 @@
+# Liste maison : portails de jeux et proxys web que les listes UT1 ne voient
+# pas encore. Une entree par ligne, commentaires avec #.
+#
+# Un hostname bloque couvre automatiquement ses sous-domaines : inutile
+# d'ajouter www.exemple.com si exemple.com est deja present.
+#
+# Cette liste est volontairement courte : le socle vient de UT1. Elle sert a
+# reagir entre deux regenerations mensuelles.
+
+# --- Portails de jeux HTML5 grand public ---
+poki.com
+crazygames.com
+coolmathgames.com
+silvergames.com
+friv.com
+kizi.com
+y8.com
+agame.com
+miniclip.com
+addictinggames.com
+armorgames.com
+jeux.fr
+jeuxjeuxjeux.fr
+
+# --- Archives et emulateurs de jeux Flash ---
+flashpointarchive.org
+newgrounds.com
+ruffle.rs
+
+# --- Jeu en nuage (contourne tout blocage par domaine de jeu) ---
+now.gg
+nowgg.me
+boosteroid.com

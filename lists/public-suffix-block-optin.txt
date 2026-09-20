@@ -1,0 +1,20 @@
+# Suffixes publics dont le blocage INTEGRAL est accepte explicitement.
+#
+# Par defaut, le build REFUSE toute entree amont qui est un suffixe public :
+# bloquer `github.io` ou `pages.dev` reviendrait a bloquer des milliers de sites
+# independants. C'est le garde-fou central du projet.
+#
+# Certains suffixes publics sont toutefois des services de DNS dynamique dont
+# l'objet meme est d'heberger des serveurs de jeu. Les bloquer en entier est
+# alors conforme a l'objectif, et sans risque pedagogique. Les inscrire ici,
+# une entree par ligne, vaut decision explicite de l'etablissement.
+#
+# Retirer une ligne suffit a revenir au refus par defaut.
+
+# Services de DNS dynamique dedies aux serveurs de jeu, listes par UT1 :
+game-host.org
+game-server.cc
+game.tw
+netgamers.jp
+servegame.com
+servegame.org

@@ -1,0 +1,16 @@
+{
+  "name": "filtre-jeux",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Extension de filtrage des sites de jeux pour les salles informatiques d'un college",
+  "license": "MIT",
+  "scripts": {
+    "build:lists": "node tools/build-lists.mjs",
+    "report:diff": "node tools/report-diff.mjs",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

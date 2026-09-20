@@ -1,0 +1,23 @@
+# Hebergeurs mutualises ABSENTS de la Public Suffix List.
+#
+# La PSL protege deja github.io, pages.dev, netlify.app, herokuapp.com, etc. :
+# le verrou n'1 empeche toute fusion au-dessus d'eux. Les hotes ci-dessous
+# hebergent egalement du contenu de tiers mais ne sont PAS dans la PSL, donc
+# rien n'empecherait `jeu.itch.io` de se fusionner en `itch.io`.
+#
+# Effet de ce fichier : on ne fusionne JAMAIS un sous-domaine dans ces hotes.
+# En revanche, si une liste amont bloque explicitement l'un d'eux, la decision
+# est honoree mais signalee en clair dans le rapport de build, pour que
+# l'etablissement la valide sciemment.
+
+itch.io
+glitch.me
+repl.co
+replit.dev
+codesandbox.io
+stackblitz.io
+neocities.org
+surge.sh
+w3spaces.com
+000webhostapp.com
+altervista.org

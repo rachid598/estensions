@@ -1,0 +1,11 @@
+node_modules/
+dist/
+*.crx
+*.xpi
+*.pem
+.cache/
+
+# Artefact derivable et volumineux (6,3 Mo) : regenere par `npm run build:lists`.
+# hostnames.json est en revanche versionne, car il sert de reference a l'audit
+# de `tools/report-diff.mjs`.
+extension/rules/dnr-rules.json

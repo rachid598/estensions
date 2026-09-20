@@ -1,0 +1,33 @@
+{
+  "comment": [
+    "Sources amont du filtre. Les listes UT1 sont publiees par l'Universite Toulouse 1",
+    "Capitole (Fabrice Prigent) sous licence CC BY-SA. Le domaine officiel est",
+    "https://dsi.ut-capitole.fr/blacklists/ ; on consomme le miroir GitHub officiel,",
+    "synchronise quotidiennement, parce qu'il est joignable depuis la CI."
+  ],
+  "upstream": [
+    {
+      "id": "ut1-games",
+      "role": "block",
+      "url": "https://raw.githubusercontent.com/olbat/ut1-blacklists/master/blacklists/games/domains",
+      "licence": "CC BY-SA",
+      "description": "Categorie 'games' : socle du blocage."
+    },
+    {
+      "id": "ut1-educational-games",
+      "role": "allow",
+      "url": "https://raw.githubusercontent.com/olbat/ut1-blacklists/master/blacklists/educational_games/domains",
+      "licence": "CC BY-SA",
+      "description": "Categorie 'educational_games' : injectee dans l'allowlist."
+    }
+  ],
+  "local": [
+    { "path": "lists/custom-block.txt", "role": "block" },
+    { "path": "lists/allowlist.txt", "role": "allow" },
+    { "path": "lists/shared-hosts.txt", "role": "shared" }
+  ],
+  "budget": {
+    "dnrMaxRules": 28000,
+    "comment": "Chrome garantit 30 000 regles statiques par extension. On echoue a 28 000 pour garder une marge, regles 'allow' comprises."
+  }
+}
