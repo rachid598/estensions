@@ -11,7 +11,8 @@
         "required": [
           "none"
         ]
-      }
+      },
+      "update_url": "https://filtrage.college.example.fr/updates.json"
     },
     "gecko_android": {
       "strict_min_version": "142.0"

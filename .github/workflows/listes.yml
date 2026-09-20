@@ -1,0 +1,90 @@
+name: Régénération mensuelle des listes
+
+# Les listes UT1 sont mises à jour quotidiennement en amont. On les recompile
+# une fois par mois, on vérifie, et on publie les paquets — mais la mise en
+# production reste un geste volontaire : copie sur le serveur du collège puis
+# `ansible-playbook`.
+on:
+  schedule:
+    - cron: '0 4 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  regenerer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      - name: Recompiler les listes
+        run: npm run build:lists
+
+      - name: Audit des écarts
+        run: |
+          {
+            echo '## Écarts par rapport à la version déployée'
+            echo '```'
+            npm run --silent report:diff
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Valider le manifeste et les sources
+        run: npm run lint
+
+      - name: Tests
+        run: npm test
+
+      - name: Version datée
+        id: version
+        run: echo "valeur=$(date -u +%Y.%-m.%-d)" >> "$GITHUB_OUTPUT"
+
+      - name: Empaqueter
+        run: npm run pack -- --version "${{ steps.version.outputs.valeur }}"
+
+      # Firefox exige une signature Mozilla. Le canal « unlisted » signe sans
+      # publier ni référencer l'extension : la distribution reste auto-hébergée.
+      # Sans secrets configurés, on produit le paquet non signé et on le dit.
+      - name: Signer via AMO (canal unlisted)
+        if: ${{ env.AMO_JWT_ISSUER != '' }}
+        env:
+          AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
+          AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+        run: |
+          npm run sign -- --api-key "$AMO_JWT_ISSUER" --api-secret "$AMO_JWT_SECRET"
+          # Régénère updates.json à partir du XPI signé, seul distribuable.
+          SIGNE=$(ls -1 dist/*.xpi | tail -n 1)
+          npm run pack -- --version "${{ steps.version.outputs.valeur }}" --xpi "$SIGNE"
+
+      - name: Avertir si non signé
+        if: ${{ env.AMO_JWT_ISSUER == '' }}
+        run: |
+          echo "::warning::Secrets AMO absents : paquet NON signé, non installable par policies.json. Configurer AMO_JWT_ISSUER et AMO_JWT_SECRET."
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: filtre-jeux-${{ steps.version.outputs.valeur }}
+          path: |
+            dist/*.xpi
+            dist/updates.json
+            extension/rules/build-report.json
+
+      - name: Enregistrer les listes recompilées
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add extension/rules/hostnames.json extension/manifest.json
+          if git diff --cached --quiet; then
+            echo 'Aucun changement de liste ce mois-ci.'
+          else
+            git commit -m "Listes régénérées le $(date -u +%Y-%m-%d)"
+            git push
+          fi

@@ -1,0 +1,39 @@
+{
+  "_commentaire": "Déployé par Ansible (rôle filtre_jeux). Ne pas éditer à la main sur le poste.",
+  "policies": {
+    "ExtensionSettings": {
+      "*": {
+        "installation_mode": "blocked",
+        "blocked_install_message": "L'installation d'extensions est gérée par l'établissement."
+      },
+      "{{ filtre_jeux_extension_id }}": {
+        "installation_mode": "force_installed",
+        "install_url": "{{ filtre_jeux_base_url }}/{{ filtre_jeux_xpi_nom }}",
+        "updates_disabled": false
+      }
+    },
+
+    "BlockAboutAddons": true,
+    "BlockAboutConfig": true,
+    "BlockAboutProfiles": true,
+    "BlockAboutSupport": true,
+    "DisableSafeMode": true,
+    "DisableProfileImport": true,
+    "DisablePrivateBrowsing": true,
+    "DisableTelemetry": true,
+    "DisableDeveloperTools": {{ filtre_jeux_desactiver_devtools | bool | lower }},
+
+    "ImportEnterpriseRoots": {{ filtre_jeux_import_enterprise_roots | bool | lower }},
+
+    "3rdparty": {
+      "Extensions": {
+        "{{ filtre_jeux_extension_id }}": {
+          "allowlist": {{ filtre_jeux_allowlist | to_json }},
+          "blocklist": {{ filtre_jeux_blocklist | to_json }},
+          "heuristicMode": "{{ filtre_jeux_mode_heuristique }}",
+          "contact": "{{ filtre_jeux_contact }}"
+        }
+      }
+    }
+  }
+}

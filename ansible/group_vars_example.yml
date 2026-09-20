@@ -1,0 +1,21 @@
+---
+# À copier dans group_vars/salles_informatiques.yml et adapter.
+# Ces valeurs doivent rester alignées avec config/deploiement.json.
+
+filtre_jeux_base_url: "https://filtrage.college.example.fr"
+filtre_jeux_extension_id: "filtre-jeux@college.example.fr"
+filtre_jeux_xpi_nom: "filtre_jeux-2026.9.20.xpi"
+filtre_jeux_contact: "Service informatique - assistance@college.example.fr"
+
+# Semaine d'observation sur le poste pilote : l'heuristique journalise sans
+# bloquer, et les outils de développement restent accessibles pour lire le
+# journal. Après calibrage, passer en "block" et remettre true.
+filtre_jeux_mode_heuristique: "observe"
+filtre_jeux_desactiver_devtools: false
+
+# Sites signalés par les enseignants, débloqués sans régénérer l'extension.
+filtre_jeux_allowlist:
+  - "monsite-pedagogique.fr"
+
+# Sites de jeux repérés localement, bloqués sans attendre la mise à jour mensuelle.
+filtre_jeux_blocklist: []

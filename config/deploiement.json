@@ -1,0 +1,11 @@
+{
+  "comment": [
+    "Configuration de deploiement de l'etablissement. Editer ces valeurs AVANT",
+    "d'empaqueter : elles sont injectees dans le manifeste, dans updates.json et",
+    "dans le role Ansible. Une seule source de verite."
+  ],
+  "baseUrl": "https://filtrage.college.example.fr",
+  "extensionId": "filtre-jeux@college.example.fr",
+  "contact": "Service informatique - assistance@college.example.fr",
+  "firefoxMinVersion": "140.0"
+}

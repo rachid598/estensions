@@ -11,5 +11,4 @@ dist/
 extension/rules/hostnames.js
 extension/rules/heuristics.js
 
-# Dependances de developpement (web-ext pour le lint et la signature AMO).
-package-lock.json
+dist/

@@ -10,9 +10,13 @@ plus grave qu'un jeu qui passe temporairement.
 
 ## État
 
-Jalons 1 et 2 en place : chaîne de compilation des listes, et moteur de blocage
-Firefox ESR. Restent les modules anti-contournement et heuristique (jalon 3),
-l'empaquetage signé (jalon 4) et le rôle Ansible (jalon 5).
+Les six jalons prévus sont en place : compilation des listes, moteur de blocage,
+modules anti-contournement et heuristique, empaquetage auto-hébergé, rôle Ansible
+et documentation.
+
+Reste à faire, et cela ne peut pas l'être ailleurs que chez vous : obtenir les
+identifiants AMO pour la signature, déposer les paquets sur le serveur, et
+dérouler la semaine d'observation sur un poste pilote.
 
 **Cible : Firefox ESR uniquement.** Chrome et Edge sont hors périmètre — voir
 « Pourquoi pas Chromium » plus bas. Le manifeste exige **Firefox 140 ou
@@ -27,8 +31,10 @@ npm run build:lists      # télécharge, normalise, réduit, émet les artefacts
 npm run build:lists -- --offline   # rejoue depuis le cache .cache/
 npm run report:diff      # audit : ce que ce build change par rapport à git HEAD
 npm run lint             # validation du manifeste et des sources (web-ext)
-npm test                 # 37 tests : unitaires, non-régressions, intégration
+npm test                 # 52 tests : unitaires, non-régressions, intégration
 npm run check            # les trois enchaînés
+npm run sign             # signature AMO, canal unlisted (identifiants requis)
+npm run pack             # XPI + updates.json pour l'auto-hébergement
 ```
 
 Artefacts produits dans `extension/rules/` :
@@ -90,16 +96,47 @@ que maintenu à vide ; il reste consultable dans l'historique git.
   permet d'ajouter un domaine à l'allowlist ou à la liste noire **sans
   régénérer ni redéployer** l'extension.
 
+## Comment ça bloque
+
+Trois étages, du plus sûr au plus large :
+
+1. **Liste** — `webRequest` bloquant : la requête est annulée avant toute
+   connexion réseau. Couvre les 33 717 domaines de la liste compilée.
+2. **Anti-contournement** — détection des proxys web (Ultraviolet, Scramjet) par
+   leurs globales de signature, depuis une sonde en monde MAIN. C'est ce qui
+   tient face aux domaines jetables renouvelés chaque semaine.
+3. **Heuristique** — score sur les signaux de jeu d'une page inconnue. **Livrée
+   en mode observation** : elle journalise sans bloquer, le temps d'une semaine
+   de calibrage. Le blocage exige toujours un signal de moteur **et** un signal
+   lexical.
+
+La sonde en monde MAIN partage son contexte avec la page : ce n'est pas une
+frontière de sécurité, et l'architecture en tient compte. Elle n'a aucun
+privilège et ne transmet que deux booléens ; toute décision revient au service de
+fond. Une page hostile peut forger l'événement, mais ne provoque alors que son
+propre blocage — l'allowlist reste infranchissable.
+
+## Documentation
+
+| Document | Contenu |
+|---|---|
+| `docs/deploiement.md` | procédure complète, du XPI signé au poste pilote |
+| `docs/faux-positifs.md` | débloquer un site sans régénérer l'extension |
+| `docs/kwartz.md` | le filtrage réseau comme deuxième filet |
+| `docs/rgpd.md` | ce qui est traité, et ce que l'établissement doit faire |
+
 ## Vérifications faites, et celle qui reste
 
-Faites ici : 37 tests (`npm test`), dont les non-régressions de réduction et les
-fixtures « ne doit jamais être bloqué » ; validation du manifeste et des sources
-par `web-ext lint` (0 erreur, 0 alerte) ; test d'intégration du moteur avec une
-API WebExtension simulée.
+Faites ici : 52 tests (`npm test`), dont les non-régressions de réduction, les
+fixtures « ne doit jamais être bloqué », et les deux cas de sécurité de la sonde ;
+validation du manifeste et des sources par `web-ext lint` (0 erreur, 0 alerte) ;
+test d'intégration du moteur avec une API WebExtension simulée ; rendu du
+`policies.json` validé dans deux configurations.
 
 **Pas encore faite : l'exécution dans un vrai Firefox ESR.** Aucun Firefox n'est
-installé dans l'environnement de développement. Un essai sur le poste pilote
-reste indispensable avant tout déploiement.
+installé dans l'environnement de développement — seul Chromium l'est, et il est
+hors périmètre. Un essai sur le poste pilote reste indispensable avant tout
+déploiement ; `docs/deploiement.md` en donne la liste de contrôle.
 
 ## Listes amont
 

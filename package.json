@@ -10,7 +10,9 @@
     "report:diff": "node tools/report-diff.mjs",
     "lint": "web-ext lint --source-dir=extension --self-hosted",
     "test": "node --test tests/*.test.mjs",
-    "check": "npm run build:lists -- --quiet && npm run lint && npm test"
+    "check": "npm run build:lists -- --quiet && npm run lint && npm test",
+    "pack": "node tools/pack-xpi.mjs",
+    "sign": "web-ext sign --source-dir extension --artifacts-dir dist --channel unlisted"
   },
   "engines": {
     "node": ">=20"

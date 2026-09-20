@@ -1,0 +1,6 @@
+---
+- name: Déployer le filtre de jeux sur les postes des salles informatiques
+  hosts: salles_informatiques
+  gather_facts: true
+  roles:
+    - filtre_jeux

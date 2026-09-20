@@ -1,0 +1,36 @@
+---
+# Valeurs à aligner avec config/deploiement.json : une seule source de vérité.
+filtre_jeux_base_url: "https://filtrage.college.example.fr"
+filtre_jeux_extension_id: "filtre-jeux@college.example.fr"
+filtre_jeux_xpi_nom: "filtre_jeux-0.1.0.xpi"
+filtre_jeux_contact: "Service informatique - assistance@college.example.fr"
+
+# Version minimale exigée par le manifeste (data_collection_permissions).
+filtre_jeux_firefox_version_min: "140.0"
+filtre_jeux_firefox_repertoire: 'C:\Program Files\Mozilla Firefox'
+
+# À activer si le serveur HTTPS présente un certificat d'une autorité interne
+# déjà présente dans le magasin Windows — cas fréquent avec Kwartz. Firefox
+# ignore le magasin système sans cette option, et l'installation échoue en
+# silence. Inutile avec un certificat public.
+filtre_jeux_import_enterprise_roots: true
+
+# Mode de l'heuristique. « observe » journalise sans bloquer : c'est le mode de
+# livraison, le temps d'une semaine de classe. Basculer ensuite sur « block ».
+filtre_jeux_mode_heuristique: "observe"
+
+# Listes d'établissement, appliquées sans régénérer l'extension.
+# L'allowlist prime en toutes circonstances.
+filtre_jeux_allowlist: []
+filtre_jeux_blocklist: []
+
+# Les outils de développement donnent accès au journal du mode observation
+# (about:debugging). Les laisser actifs sur le poste pilote pendant la semaine
+# d'observation, les désactiver ensuite sur tout le parc.
+filtre_jeux_desactiver_devtools: true
+
+# Chrome et Edge ne peuvent pas recevoir cette extension (voir README).
+# Cette option leur interdit toute navigation par policy : mesure réversible,
+# sans AppLocker et sans toucher aux binaires. Les élèves sont ramenés vers
+# Firefox. À désactiver si un service interne dépend d'Edge.
+filtre_jeux_neutraliser_chromium: true

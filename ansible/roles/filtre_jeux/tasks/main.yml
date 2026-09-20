@@ -1,0 +1,102 @@
+---
+# Préflight : on échoue tôt et en clair plutôt que de laisser une installation
+# muette. Les trois causes d'échec silencieux constatées sont : Firefox trop
+# ancien, XPI injoignable, et certificat HTTPS non approuvé par Firefox.
+
+- name: Vérifier que Firefox est installé
+  ansible.windows.win_stat:
+    path: '{{ filtre_jeux_firefox_repertoire }}\firefox.exe'
+  register: filtre_jeux_binaire
+
+- name: Échouer si Firefox est absent
+  ansible.builtin.fail:
+    msg: >-
+      Firefox introuvable dans {{ filtre_jeux_firefox_repertoire }}.
+      Installer Firefox ESR avant de déployer le filtre.
+  when: not filtre_jeux_binaire.stat.exists
+
+- name: Relever la version de Firefox
+  ansible.windows.win_command: >-
+    powershell -NoProfile -Command
+    "(Get-Item '{{ filtre_jeux_firefox_repertoire }}\firefox.exe').VersionInfo.ProductVersion"
+  register: filtre_jeux_version
+  changed_when: false
+
+- name: Exiger une version compatible avec le manifeste
+  ansible.builtin.assert:
+    that:
+      - filtre_jeux_version.stdout | trim is version(filtre_jeux_firefox_version_min, '>=')
+    fail_msg: >-
+      Firefox {{ filtre_jeux_version.stdout | trim }} installé, mais le manifeste
+      exige {{ filtre_jeux_firefox_version_min }} ou supérieur
+      (clé data_collection_permissions, requise par AMO pour la signature).
+      Mettre à jour Firefox ESR avant de déployer.
+    success_msg: "Firefox {{ filtre_jeux_version.stdout | trim }} : compatible."
+
+# Test effectué DEPUIS LE POSTE, et non depuis le contrôleur : c'est la chaîne
+# de confiance du poste qui compte. Un certificat d'autorité interne absent du
+# magasin Windows, ou présent mais sans ImportEnterpriseRoots, fait échouer
+# l'installation sans message côté Firefox.
+- name: Vérifier que le XPI est joignable en HTTPS depuis le poste
+  ansible.windows.win_uri:
+    url: '{{ filtre_jeux_base_url }}/{{ filtre_jeux_xpi_nom }}'
+    method: HEAD
+    validate_certs: true
+    status_code: [200]
+  register: filtre_jeux_test_https
+  failed_when: false
+  changed_when: false
+
+- name: Échouer avec un diagnostic si le XPI n'est pas joignable
+  ansible.builtin.fail:
+    msg: >-
+      {{ filtre_jeux_base_url }}/{{ filtre_jeux_xpi_nom }} injoignable depuis ce poste
+      ({{ filtre_jeux_test_https.msg | default('erreur inconnue') }}).
+      Vérifier que le fichier est bien déposé sur le serveur, et que son certificat
+      HTTPS est approuvé par le poste. Si le serveur utilise une autorité interne,
+      laisser filtre_jeux_import_enterprise_roots à true et s'assurer que la racine
+      est dans le magasin Windows.
+  when: filtre_jeux_test_https.status_code | default(0) != 200
+
+- name: Créer le dossier de distribution de Firefox
+  ansible.windows.win_file:
+    path: '{{ filtre_jeux_firefox_repertoire }}\distribution'
+    state: directory
+
+- name: Déployer policies.json
+  ansible.windows.win_template:
+    src: policies.json.j2
+    dest: '{{ filtre_jeux_firefox_repertoire }}\distribution\policies.json'
+  register: filtre_jeux_policies
+
+- name: Rappeler que Firefox lit les policies au démarrage
+  ansible.builtin.debug:
+    msg: >-
+      policies.json déployé. Les policies ne sont lues qu'au démarrage de Firefox :
+      fermer toutes les fenêtres ouvertes, ou redémarrer le poste, avant de vérifier.
+  when: filtre_jeux_policies.changed
+
+# Chrome et Edge ne peuvent pas recevoir cette extension. Plutôt que de toucher
+# aux binaires, on leur interdit toute navigation par policy : réversible,
+# sans AppLocker, et sans effet sur l'intégration Windows d'Edge.
+- name: Interdire la navigation dans Chrome et Edge
+  ansible.windows.win_regedit:
+    path: 'HKLM:\SOFTWARE\Policies\{{ item }}\URLBlocklist'
+    name: '1'
+    data: '*'
+    type: string
+  loop:
+    - 'Google\Chrome'
+    - 'Microsoft\Edge'
+  when: filtre_jeux_neutraliser_chromium | bool
+
+- name: Bloquer l'installation d'extensions dans Chrome et Edge
+  ansible.windows.win_regedit:
+    path: 'HKLM:\SOFTWARE\Policies\{{ item }}\ExtensionInstallBlocklist'
+    name: '1'
+    data: '*'
+    type: string
+  loop:
+    - 'Google\Chrome'
+    - 'Microsoft\Edge'
+  when: filtre_jeux_neutraliser_chromium | bool
