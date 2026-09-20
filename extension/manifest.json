@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Filtre Jeux",
+  "version": "0.1.0",
+  "description": "Bloque les sites de jeux en ligne sur les postes des salles informatiques.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "filtre-jeux@college.example.fr",
+      "strict_min_version": "140.0",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    },
+    "gecko_android": {
+      "strict_min_version": "142.0"
+    }
+  },
+  "permissions": [
+    "webRequest",
+    "webRequestBlocking",
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "scripts": [
+      "src/background.js"
+    ],
+    "type": "module"
+  }
+}

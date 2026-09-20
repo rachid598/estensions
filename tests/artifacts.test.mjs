@@ -7,11 +7,8 @@ import { normalizeList } from '../tools/lib/normalize.mjs';
 import { isCoveredBySet } from '../tools/lib/reduce.mjs';
 
 const artifactUrl = new URL('../extension/rules/hostnames.json', import.meta.url);
-const rulesUrl = new URL('../extension/rules/dnr-rules.json', import.meta.url);
-for (const url of [artifactUrl, rulesUrl]) {
-  if (!existsSync(url)) {
-    throw new Error(`${url.pathname} absent : lancer \`npm run build:lists\` avant les tests.`);
-  }
+if (!existsSync(artifactUrl)) {
+  throw new Error('extension/rules/hostnames.json absent : lancer `npm run build:lists` avant les tests.');
 }
 
 const { blocked, allowed, digest } = JSON.parse(readFileSync(artifactUrl, 'utf8'));
@@ -75,20 +72,4 @@ test('NON-REGRESSION : les hebergeurs de la PSL ne sont pas bloques en bloc', ()
   for (const host of ['github.io', 'pages.dev', 'netlify.app', 'herokuapp.com', 'web.app']) {
     assert.equal(blockedSet.has(host), false, `${host} ne doit jamais figurer dans la liste bloquee`);
   }
-});
-
-test('les regles DNR sont bien formees et numerotees de facon unique', () => {
-  const rules = JSON.parse(readFileSync(new URL('../extension/rules/dnr-rules.json', import.meta.url), 'utf8'));
-  const ids = new Set();
-  for (const rule of rules) {
-    assert.ok(Number.isInteger(rule.id) && rule.id > 0);
-    assert.equal(ids.has(rule.id), false, `id DNR duplique : ${rule.id}`);
-    ids.add(rule.id);
-    assert.match(rule.condition.urlFilter, /^\|\|[a-z0-9._-]+\^$/);
-    assert.ok(rule.priority === 1 || rule.priority === 2);
-  }
-  // Les regles « allow » doivent avoir la priorite la plus haute.
-  const allowRules = rules.filter((r) => r.action.type === 'allow');
-  assert.equal(allowRules.length, allowed.length);
-  assert.ok(allowRules.every((r) => r.priority === 2));
 });

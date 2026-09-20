@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Accès bloqué</title>
+  <link rel="stylesheet" href="blocked.css">
+</head>
+<body>
+  <main class="carte">
+    <p class="bandeau">Filtrage pédagogique</p>
+
+    <h1>Ce site est bloqué</h1>
+
+    <p class="intro">
+      Le site ci-dessous est classé parmi les sites de jeux en ligne. Il n'est pas
+      accessible depuis les postes des salles informatiques.
+    </p>
+
+    <p class="domaine"><span id="domaine">—</span></p>
+
+    <section class="encadre">
+      <h2>Ce site vous est nécessaire pour un cours&nbsp;?</h2>
+      <p>
+        Signalez-le à votre enseignant&nbsp;: l'administrateur peut ajouter ce
+        domaine à la liste des sites autorisés. La correction est effective sans
+        réinstallation.
+      </p>
+      <p id="contact" class="contact" hidden></p>
+    </section>
+
+    <p class="pied">
+      Listes mises à jour le <span id="maj">—</span>.
+    </p>
+  </main>
+
+  <script src="blocked.js" type="module"></script>
+</body>
+</html>

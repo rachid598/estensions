@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-20T11:42:35.681Z",
+  "generatedAt": "2026-09-20T11:58:15.428Z",
   "digest": "c7fc39594bf2681266088c01a831b913e11af33dc7b1cbf92bddd8d5f5f869c2",
   "pipeline": {
     "raw": 33760,
@@ -7,11 +7,9 @@
     "afterReduction": 33719,
     "afterAllowlist": 33717
   },
-  "dnr": {
-    "total": 33758,
-    "block": 33717,
-    "allow": 41,
-    "budget": 28000
+  "counts": {
+    "blocked": 33717,
+    "allowed": 41
   },
   "warnings": {
     "publicSuffixRefused": [],

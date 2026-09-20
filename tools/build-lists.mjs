@@ -1,14 +1,12 @@
 #!/usr/bin/env node
 /**
- * Compile les listes amont en artefacts consommables par l'extension.
+ * Compile les listes amont en `extension/rules/hostnames.json`, consomme par le
+ * moteur a Set de l'extension (webRequest bloquant, Firefox ESR).
  *
- *   hostnames.json  ->  moteur a Set (Firefox ESR ; Chromium si webRequestBlocking)
- *   dnr-rules.json  ->  moteur declarativeNetRequest (Chromium par defaut)
- *
- * Le role de ce script est autant de produire les artefacts que de MESURER : le
- * nombre reel de regles DNR apres reduction decide si la strategie Chromium tient.
- * Au-dela du budget, le build echoue au lieu de laisser le navigateur tronquer le
- * filtrage en silence.
+ * Historique : ce script emettait aussi des regles declarativeNetRequest pour
+ * Chromium. La mesure du 2026-09-20 a montre 33 758 regles pour 30 000 garanties
+ * par extension ; le parc ayant ete recentre sur Firefox ESR seul, le volet DNR a
+ * ete retire plutot que maintenu a vide. Voir README.md.
  *
  * Usage : node tools/build-lists.mjs [--offline] [--quiet]
  */
@@ -54,20 +52,8 @@ async function fetchSource({ id, url }) {
 
 const readLocalList = (relPath) => readFile(join(ROOT, relPath), 'utf8');
 
-function dnrRule(id, host, kind) {
-  return {
-    id,
-    priority: kind === 'allow' ? 2 : 1,
-    action: kind === 'allow'
-      ? { type: 'allow' }
-      : { type: 'redirect', redirect: { extensionPath: '/ui/blocked.html' } },
-    condition: { urlFilter: `||${host}^`, resourceTypes: ['main_frame', 'sub_frame'] },
-  };
-}
-
 async function main() {
   const sources = JSON.parse(await readLocalList('lists/sources.json'));
-  const budget = sources.budget.dnrMaxRules;
 
   log('\nSources amont');
   const upstream = new Map();
@@ -127,23 +113,36 @@ async function main() {
   const blockedSorted = [...finalBlocked].sort();
   const allowedSorted = [...allowReduced].sort();
 
-  const rules = [];
-  let id = 1;
-  for (const host of blockedSorted) rules.push(dnrRule(id++, host, 'block'));
-  for (const host of allowedSorted) rules.push(dnrRule(id++, host, 'allow'));
-
   const generatedAt = new Date().toISOString();
   const digest = createHash('sha256')
     .update(`${blockedSorted.join('\n')}\u0000${allowedSorted.join('\n')}`)
     .digest('hex');
 
   await mkdir(OUT_DIR, { recursive: true });
+
+  // hostnames.json : artefact d'audit, versionne, lu par tools/report-diff.mjs.
   await writeFile(
     join(OUT_DIR, 'hostnames.json'),
     `${JSON.stringify({ generatedAt, digest, blocked: blockedSorted, allowed: allowedSorted })}\n`,
   );
-  await writeFile(join(OUT_DIR, 'dnr-rules.json'), `${JSON.stringify(rules)}\n`);
 
+  // hostnames.js : meme contenu, mais en module ES.
+  // L'extension DOIT l'importer statiquement plutot que de le charger par fetch :
+  // une event page MV3 peut redemarrer a tout moment, et un chargement asynchrone
+  // laisserait passer les requetes arrivant avant la fin du chargement. Un import
+  // statique est resolu avant l'execution du corps du script, donc avant
+  // l'enregistrement du listener webRequest.
+  await writeFile(
+    join(OUT_DIR, 'hostnames.js'),
+    [
+      '// Genere par tools/build-lists.mjs - ne pas editer a la main.',
+      `export const generatedAt = ${JSON.stringify(generatedAt)};`,
+      `export const digest = ${JSON.stringify(digest)};`,
+      `export const blocked = ${JSON.stringify(blockedSorted)};`,
+      `export const allowed = ${JSON.stringify(allowedSorted)};`,
+      '',
+    ].join('\n'),
+  );
   const report = {
     generatedAt,
     digest,
@@ -153,16 +152,16 @@ async function main() {
       afterReduction: reduced.size,
       afterAllowlist: blockedSorted.length,
     },
-    dnr: { total: rules.length, block: blockedSorted.length, allow: allowedSorted.length, budget },
+    counts: { blocked: blockedSorted.length, allowed: allowedSorted.length },
     warnings: { publicSuffixRefused, publicSuffixAccepted, sharedHostsBlocked, droppedByAllowlist: droppedByAllowlist.sort() },
     skipped: Object.fromEntries(skipped),
   };
   await writeFile(join(OUT_DIR, 'build-report.json'), `${JSON.stringify(report, null, 2)}\n`);
 
-  // --- Etape 6 : rapport et budget -----------------------------------------
+  // --- Etape 6 : rapport ----------------------------------------------------
   log('\nPipeline');
   log(`  ${rawCount} brut -> ${uniqueCount} uniques -> ${reduced.size} apres reduction -> ${blockedSorted.length} apres allowlist`);
-  log(`            -> ${rules.length} regles DNR = ${blockedSorted.length} regles « block » + ${allowedSorted.length} regles « allow »`);
+  log(`            -> ${blockedSorted.length} hostnames bloques + ${allowedSorted.length} autorises`);
 
   if (skipped.size > 0) {
     log('\nLignes ecartees a la normalisation');
@@ -190,19 +189,7 @@ async function main() {
     if (droppedByAllowlist.length > 20) log(`      ... et ${droppedByAllowlist.length - 20} autres (voir build-report.json)`);
   }
 
-  log(`\nArtefacts dans extension/rules/ : hostnames.json, dnr-rules.json, build-report.json`);
-
-  if (rules.length >= budget) {
-    console.error(
-      `\nECHEC : ${rules.length} regles DNR, budget fixe a ${budget}.\n` +
-      'Chrome ne garantit que 30 000 regles statiques par extension. Au-dela, la\n' +
-      'couverture depend du pool global de la machine et peut etre tronquee en silence.\n' +
-      'Arbitrer maintenant : resserrer la liste, ou basculer Chromium sur webRequestBlocking.\n',
-    );
-    process.exit(1);
-  }
-
-  log(`Budget DNR : ${rules.length}/${budget} regles (${Math.round((rules.length / budget) * 100)} %). OK.\n`);
+  log('\nArtefacts dans extension/rules/ : hostnames.json, hostnames.js, build-report.json\n');
 }
 
 main().catch((error) => {

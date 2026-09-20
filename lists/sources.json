@@ -25,9 +25,5 @@
     { "path": "lists/custom-block.txt", "role": "block" },
     { "path": "lists/allowlist.txt", "role": "allow" },
     { "path": "lists/shared-hosts.txt", "role": "shared" }
-  ],
-  "budget": {
-    "dnrMaxRules": 28000,
-    "comment": "Chrome garantit 30 000 regles statiques par extension. On echoue a 28 000 pour garder une marge, regles 'allow' comprises."
-  }
+  ]
 }

@@ -5,7 +5,10 @@ dist/
 *.pem
 .cache/
 
-# Artefact derivable et volumineux (6,3 Mo) : regenere par `npm run build:lists`.
-# hostnames.json est en revanche versionne, car il sert de reference a l'audit
-# de `tools/report-diff.mjs`.
-extension/rules/dnr-rules.json
+
+# Meme contenu que hostnames.json, mais en module ES pour l'extension.
+# Derivable : regenere par `npm run build:lists`.
+extension/rules/hostnames.js
+
+# Dependances de developpement (web-ext pour le lint et la signature AMO).
+package-lock.json
