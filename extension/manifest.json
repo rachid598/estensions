@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Filtre Jeux",
-  "version": "0.1.0",
+  "version": "2026.10.1",
   "description": "Bloque les sites de jeux en ligne sur les postes des salles informatiques.",
   "browser_specific_settings": {
     "gecko": {
